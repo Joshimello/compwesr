@@ -12,11 +12,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact: compwesr-linux
+            asset: compwesr-linux.tar.gz
           - os: macos-latest
-            artifact: compwesr-macos
+            asset: compwesr-macos.tar.gz
           - os: windows-latest
-            artifact: compwesr-windows.exe
+            asset: compwesr-windows.zip
 
     runs-on: ${{ matrix.os }}
 
@@ -29,19 +29,20 @@ jobs:
 
       - run: uv run python build.py
 
-      - name: Rename artifact
+      - name: Package
         shell: bash
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            mv dist/compwesr.exe dist/${{ matrix.artifact }}
+            cd dist && zip ${{ matrix.asset }} compwesr.exe
           else
-            mv dist/compwesr dist/${{ matrix.artifact }}
+            chmod +x dist/compwesr
+            tar -czf dist/${{ matrix.asset }} -C dist compwesr
           fi
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: dist/${{ matrix.artifact }}
+          name: ${{ matrix.asset }}
+          path: dist/${{ matrix.asset }}
 
   release:
     needs: build
