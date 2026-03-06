@@ -2,6 +2,8 @@ import argparse
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent / "src"))
+
 from compress import compress_pptx
 from quality import DEFAULT_PRESET, PRESETS
 from report import print_summary

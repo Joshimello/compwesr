@@ -21,7 +21,7 @@ def compress_video(
 
     input_path = tmp_dir / original_name
     output_name = stem + ".mp4"
-    output_path = tmp_dir / output_name
+    output_path = tmp_dir / (stem + "_out.mp4")
 
     input_path.write_bytes(data)
 

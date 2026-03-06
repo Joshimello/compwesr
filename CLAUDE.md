@@ -9,7 +9,7 @@ uv sync --dev          # install dependencies
 uv run pytest          # run all tests
 uv run pytest -v       # run tests with output
 uv run pytest tests/test_images.py::test_compress_respects_max_height  # run a single test
-uv run python main.py sample.pptx --quality medium --dry-run  # smoke test
+uv run main.py sample.pptx --quality medium --dry-run  # smoke test
 ```
 
 `ffmpeg` is bundled via `imageio-ffmpeg` (a project dependency) — no system install required.
