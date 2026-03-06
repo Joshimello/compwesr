@@ -1,0 +1,17 @@
+[project]
+name = "compwesr"
+version = "0.1.0"
+description = "Compress images and videos embedded in .pptx files"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pillow>=10.0",
+    "python-pptx>=0.6",
+    "imageio-ffmpeg>=0.5",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0", "pyinstaller>=6.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]

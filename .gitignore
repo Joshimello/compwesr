@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+dist/
+build/
+*.spec
+
+# uv
+.python-version
+
+# Claude Code
+.claude/
+
+# pytest
+.pytest_cache/
+.coverage
+
+# OS
+.DS_Store
+
+# Project outputs
+*_compressed.pptx
+*_backup.pptx
+*.pptx
