@@ -8,12 +8,46 @@ from quality import QualityPreset
 from report import ItemResult, Report
 from videos import VIDEO_EXTS, compress_video
 
+_MEDIA_CONTENT_TYPES: dict[str, str] = {
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "png": "image/png",
+    "gif": "image/gif",
+    "bmp": "image/bmp",
+    "tiff": "image/tiff",
+    "webp": "image/webp",
+    "mp4": "video/mp4",
+    "m4v": "video/mp4",
+    "mov": "video/quicktime",
+    "avi": "video/x-msvideo",
+    "wmv": "video/x-ms-wmv",
+    "mkv": "video/x-matroska",
+}
+
 
 def _patch_rels_for_rename(rels_xml: bytes, old_name: str, new_name: str) -> bytes:
     """Replace media target in relationship XML when a file is renamed."""
     old = f'Target="../media/{old_name}"'.encode()
     new = f'Target="../media/{new_name}"'.encode()
     return rels_xml.replace(old, new)
+
+
+def _patch_content_types(xml: bytes, entries: dict[str, bytes]) -> bytes:
+    """Add Default entries to [Content_Types].xml for any missing media extensions."""
+    media_exts = {
+        name.rsplit(".", 1)[-1].lower()
+        for name in entries
+        if name.startswith("ppt/media/") and "." in name
+    }
+
+    xml_str = xml.decode("utf-8")
+    for ext in media_exts:
+        if ext in _MEDIA_CONTENT_TYPES and f'Extension="{ext}"' not in xml_str:
+            new_default = f'<Default Extension="{ext}" ContentType="{_MEDIA_CONTENT_TYPES[ext]}"/>'
+            insert_before = "<Override" if "<Override" in xml_str else "</Types>"
+            xml_str = xml_str.replace(insert_before, new_default + insert_before, 1)
+
+    return xml_str.encode("utf-8")
 
 
 def compress_pptx(
@@ -103,6 +137,12 @@ def compress_pptx(
     for rels_path, patched in rels_patches.items():
         entries[rels_path] = patched
 
+    # Patch [Content_Types].xml to declare any new media extensions (e.g. jpg from png)
+    if "[Content_Types].xml" in entries:
+        entries["[Content_Types].xml"] = _patch_content_types(
+            entries["[Content_Types].xml"], entries
+        )
+
     if not dry_run:
         with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zout:
             for name, data in entries.items():
@@ -119,9 +159,9 @@ def _queue_rels_rename(
     new_name: str,
 ) -> None:
     """Find and patch all rels files that reference old_name."""
+    target = f'Target="../media/{old_name}"'.encode()
     for entry in all_names:
-        if entry.startswith("ppt/slides/_rels/") and entry.endswith(".rels"):
+        if entry.endswith(".rels"):
             current = rels_patches.get(entry) or zin.read(entry)
-            target = f'Target="../media/{old_name}"'.encode()
             if target in current:
                 rels_patches[entry] = _patch_rels_for_rename(current, old_name, new_name)
