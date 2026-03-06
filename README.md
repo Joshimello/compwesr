@@ -2,6 +2,18 @@
 
 Compress images and videos embedded in `.pptx` files, reducing file size while preserving layout, positions, playback settings, and file integrity.
 
+## Download
+
+Pre-built binaries are available on the [releases page](https://github.com/Joshimello/compwesr/releases/latest):
+
+| Platform | File |
+|----------|------|
+| macOS | `compwesr-macos.tar.gz` |
+| Linux | `compwesr-linux.tar.gz` |
+| Windows | `compwesr-windows.zip` |
+
+Extract and run — no installation needed.
+
 ## Requirements
 
 - Python 3.12+
